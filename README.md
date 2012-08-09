@@ -34,25 +34,25 @@ Examples
 Simple Deepzoom Image
 ---------------------
 
-> ./scripts/deepzoom.sh -w [width] -h [height] -s [tilesize] split [imagename]
+    ./scripts/deepzoom.sh -w [width] -h [height] -s [tilesize] split [imagename]
 
 
 Mars Elevation
 --------------
 
-> $ for F in megt*.img; do 
->     DIR=`basename ${F/.img/}`
->     [ ! -d $DIR ] && mkdir $DIR
->     cd $DIR
->     tile-dem-srtm -f ../$F -w 11520 -h 5632 -s 256 -c 
->     cd ..
->   done
+    $ for F in megt*.img; do 
+        DIR=`basename ${F/.img/}`
+        [ ! -d $DIR ] && mkdir $DIR
+        cd $DIR
+        tile-dem-srtm -f ../$F -w 11520 -h 5632 -s 256 -c 
+        cd ..
+      done
 
 
 Earth Elevation
 ---------------
 
-> $ cd $(deepzoom.sh -w 86400 -h 43200 maxlevel)
-> $ tile-dem-srtm -f ../srtm_ramp2.world.86400x43200.bin -w 86400 -h 43200 -s 256 -c
-> $ cd ..
-> $ deepzoom.sh -w 86400 -h 43200 -s 256 combine
+    $ cd $(deepzoom.sh -w 86400 -h 43200 maxlevel)
+    $ tile-dem-srtm -f ../srtm_ramp2.world.86400x43200.bin -w 86400 -h 43200 -s 256 -c
+    $ cd ..
+    $ deepzoom.sh -w 86400 -h 43200 -s 256 combine
