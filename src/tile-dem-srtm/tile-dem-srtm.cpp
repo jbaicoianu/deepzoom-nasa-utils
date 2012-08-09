@@ -88,7 +88,7 @@ class ImageTile {
           int16_t val = ((*it).second[x]);
 
           // FIXME - truncating negative values; should handle signed data!
-          if (val < 0) val = 0;
+          //if (val < 0) val = 0;
           
           rgb = (uint8_t *) &val;
           //newimg->pixelColor(x, y, Magick::Color(rgb[0] / 255.0 * MaxRGB, rgb[1] / 255.0 * MaxRGB, 0));
@@ -97,7 +97,11 @@ class ImageTile {
             //int16_t buh = ((val > 0 ? val : 0) / 65535.0) * MaxRGB;
             newimg->pixelColor(x, y, Magick::Color(buh, buh, buh));
           } else {
-            newimg->pixelColor(x, y, Magick::Color(floor(val / 256.0) * cscale, (val % 256) * cscale, 0));
+            if (val < 0) {
+              newimg->pixelColor(x, y, Magick::Color(floor(-val / 256.0) * cscale, (-val % 256) * cscale, 256 * cscale));
+            } else {
+              newimg->pixelColor(x, y, Magick::Color(floor(val / 256.0) * cscale, (val % 256) * cscale, 0));
+            }
           }
           if (val < min) min = val;
           if (val > max) max = val;
