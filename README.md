@@ -34,7 +34,7 @@ Examples
 Simple Deepzoom Image
 ---------------------
 
-> ./scripts/deepzoom.sh -w <width> -h <height> -s <tilesize> split <imagename>
+> ./scripts/deepzoom.sh -w [width] -h [height] -s [tilesize] split [imagename]
 
 
 Mars Elevation
