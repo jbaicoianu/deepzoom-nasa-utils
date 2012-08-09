@@ -25,7 +25,7 @@ Mars:
  * HiRISE
      http://hirise.lpl.arizona.edu/
 
- * MEGDR digital elevation data 
+ * MOLA MEGDR digital elevation data 
      http://pds-geosciences.wustl.edu/missions/mgs/megdr.html
 
 Examples
@@ -33,12 +33,17 @@ Examples
 
 Simple Deepzoom Image
 ---------------------
+For general high-resolution imagery.  Generates all deepzoom levels and the
+matching XML descriptor file automatically.
 
     ./scripts/deepzoom.sh -w [width] -h [height] -s [tilesize] split [imagename]
 
 
 Mars Elevation
 --------------
+Mars elevation data is available in the MEGDR dataset, wich a resolution of up
+to 128 pixels per degree.  This data is split into 12 files, so extra steps are
+needed to merge the panels together
 
     $ for F in megt*.img; do 
         DIR=`basename ${F/.img/}`
@@ -51,8 +56,12 @@ Mars Elevation
 
 Earth Elevation
 ---------------
+Earth elevation data is available in the CGIAR SRTM v4 dataset.  This data is
+stored in a single 7gb raw file, so processing is pretty straightforward.
 
     $ cd $(deepzoom.sh -w 86400 -h 43200 maxlevel)
     $ tile-dem-srtm -f ../srtm_ramp2.world.86400x43200.bin -w 86400 -h 43200 -s 256 -c
     $ cd ..
     $ deepzoom.sh -w 86400 -h 43200 -s 256 combine
+
+
