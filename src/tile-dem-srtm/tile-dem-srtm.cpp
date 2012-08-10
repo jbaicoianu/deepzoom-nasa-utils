@@ -153,10 +153,10 @@ class DataFile {
         for (size_t y = tly; y < tly + sizey; y++) {
           size_t offset = (this->width * y + tlx) * sizeof(int16_t); 
           std::streamsize readsize = sizeof(int16_t) * sizex;
-//std::cout << "seek to offset " << offset << std::endl;
+          //std::cout << "seek to offset " << offset << std::endl;
           this->file.seekg(offset);
           this->file.read((char *)pixeldata, readsize);
-//std::cout << (char *)pixeldata << " (read " << this->file.gcount() << " bytes)" << std::endl;
+          //std::cout << (char *)pixeldata << " (read " << this->file.gcount() << " bytes)" << std::endl;
 
           if (this->file.gcount() < readsize) {
             std::cout << "ERROR - read of " << readsize << " bytes at offset " << offset << "failed, got " << this->file.gcount() << " bytes" << std::endl;
@@ -250,7 +250,6 @@ int main(int argc, char **argv) {
   }
 
   if (sourcefile == "") {
-    //std::cout << "Error: must specify filename using -f" << std::endl;
     std::cout << std::endl << program_usage() << std::endl;
     return 1;
   }
@@ -265,11 +264,9 @@ int main(int argc, char **argv) {
     tilecounty = ceil(sourceheight / tilesize) - tiley;
   }
 
-//std::cout << "do it: " << (tiley + tilecounty) << std::endl;
   std::cout << "Generating " << tilesize << "x" << tilesize << (greyscale ? " greyscale" : " color") << " tiles (" << tilex << "x" << tiley << ") => (" << (tilecountx + tilex) << ", " << (tilecounty + tiley) << "): " << std::flush;
   for (size_t y = tiley; y <= tiley + tilecounty; y++) {
     for (size_t x = tilex; x <= tilex + tilecountx; x++) {
-//std::cout << "do it: " << x << ", " << y << std::endl;
       ImageTile *tile = foo.getTile(tilesize, x, y);
       if (tile) {
         //std::cout << "Got tile: " << *tile;
