@@ -2,14 +2,13 @@
  * tile-dem-srtm
  * -------------
  * Efficiently splits raw NASA SRTM Digital Elevation Model data files into tiles
- *   http://srtm.csi.cgiar.org/
+ *    http://srtm.csi.cgiar.org/
  *
  * Also usable with Mars MEGDR data:
- *   http://pds-geosciences.wustl.edu/missions/mgs/megdr.html
+ *    http://pds-geosciences.wustl.edu/missions/mgs/megdr.html
  *
  * Build with:
- *
- *    g++ tile-dem-srtm.cpp -I/usr/include/ImageMagick/ -lMagick++ -o tile-dem-srtm 
+ *    g++ -Wall -pedantic -I/usr/include/ImageMagick/ -lMagick++ tile-dem-srtm.cpp -o tile-dem-srtm 
  *
 */
 
@@ -87,16 +86,19 @@ class ImageTile {
           //int16_t val = ((*it).second[x] / 2) + 32768;
           int16_t val = ((*it).second[x]);
 
-          // FIXME - truncating negative values; should handle signed data!
-          //if (val < 0) val = 0;
-          
           rgb = (uint8_t *) &val;
           //newimg->pixelColor(x, y, Magick::Color(rgb[0] / 255.0 * MaxRGB, rgb[1] / 255.0 * MaxRGB, 0));
           if (greyscale) {
-            int16_t buh = ((val + 32768.0) / 65536.0) * MaxRGB;
-            //int16_t buh = ((val > 0 ? val : 0) / 65535.0) * MaxRGB;
-            newimg->pixelColor(x, y, Magick::Color(buh, buh, buh));
+            int16_t shade = ((val + 32768.0) / 65536.0) * MaxRGB;
+            //int16_t shade = ((val > 0 ? val : 0) / 65535.0) * MaxRGB;
+            newimg->pixelColor(x, y, Magick::Color(shade, shade, shade));
           } else {
+            // encode 16-bit values into 8-bit red and green channels
+            // for negative values, set the blue channel to 256
+
+            // TODO - this format only makes sense for WebGL which doesn't have support for 16-bit
+            //        greyscale PNGs.  We should really support other more standardized formats too
+
             if (val < 0) {
               newimg->pixelColor(x, y, Magick::Color(floor(-val / 256.0) * cscale, (-val % 256) * cscale, 256 * cscale));
             } else {
@@ -146,25 +148,25 @@ class DataFile {
     ImageData getData(size_t tlx, size_t tly, size_t sizex, size_t sizey) {
       ImageData ret;
       if (this->loaded) {
-        //std::cout << "fuh buh: (" << tlx << ", " << tly << ") => (" << (tlx + sizex) << ", " << (tly + sizey) << ")" << std::endl;
-        uint16_t *fuh = new uint16_t[sizex];
+        //std::cout << "getting data: (" << tlx << ", " << tly << ") => (" << (tlx + sizex) << ", " << (tly + sizey) << ")" << std::endl;
+        uint16_t *pixeldata = new uint16_t[sizex];
         for (size_t y = tly; y < tly + sizey; y++) {
           size_t offset = (this->width * y + tlx) * sizeof(int16_t); 
           std::streamsize readsize = sizeof(int16_t) * sizex;
 //std::cout << "seek to offset " << offset << std::endl;
           this->file.seekg(offset);
-          this->file.read((char *)fuh, readsize);
-//std::cout << (char *)fuh << " (read " << this->file.gcount() << " bytes)" << std::endl;
+          this->file.read((char *)pixeldata, readsize);
+//std::cout << (char *)pixeldata << " (read " << this->file.gcount() << " bytes)" << std::endl;
 
           if (this->file.gcount() < readsize) {
             std::cout << "ERROR - read of " << readsize << " bytes at offset " << offset << "failed, got " << this->file.gcount() << " bytes" << std::endl;
           } else {
             for (size_t x = 0; x < sizex; x++) {
-              ret[y].push_back(endian_swap(fuh[x]));
+              ret[y].push_back(endian_swap(pixeldata[x]));
             }
           }
         }
-        delete[] fuh;
+        delete[] pixeldata;
       } else {
         std::cout << "Can't read data, not loaded!" << std::endl;
       }
@@ -187,12 +189,11 @@ class DataFile {
 };
 std::ostream& operator<<(std::ostream& os, const ImageTile& img) {
   ImageData::const_iterator it; 
-  os << "Fuhhhh: " << std::endl;;
-int y = 0;
+  int y = 0;
   uint8_t *rgb;
   for (it = img.idata.begin(); it != img.idata.end(); it++) {
     int xsize = ((*it).second).size();
-std::cout << y++<< ": ";
+    os << y++ << ": ";
     for (int i = 0; i < xsize; i++) {
       int16_t val = (*it).second[i];
       rgb = (uint8_t *) &val;
