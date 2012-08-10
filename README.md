@@ -41,7 +41,7 @@ matching XML descriptor file automatically.
 
 Mars Elevation
 --------------
-Mars elevation data is available in the MEGDR dataset, wich a resolution of up
+Mars elevation data is available in the MEGDR dataset, with a resolution of up
 to 128 pixels per degree.  This data is split into 12 files, so extra steps are
 needed to merge the panels together
 
