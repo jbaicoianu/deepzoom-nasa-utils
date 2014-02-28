@@ -9,7 +9,7 @@ Table of Contents
   * `deepzoom-lib.sh`         - library of deepzoom-related functions
   * `procspawn-lib.sh`        - utility library for parallelizing shell scripts
 * `src/`
-  * `tile-dem-srtm/`          - splits raw BMNG/MEGDR elevation data into DEM heightmap image tiles
+  * `tile-dem-srtm/`          - splits raw SRTM/MEGDR elevation data into DEM heightmap image tiles
 
 
 Datasets
