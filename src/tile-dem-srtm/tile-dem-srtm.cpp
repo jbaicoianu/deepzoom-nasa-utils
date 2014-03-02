@@ -21,7 +21,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <ImageMagick/Magick++.h>
+#include "tile-dem-srtm.h"
 
 uint16_t endian_swap(uint16_t& num) {
   return (num>>8) | (num<<8);
@@ -78,7 +78,7 @@ class ImageTile {
       size_t y = 0;
       uint8_t *rgb;
       int16_t max = -32767, min = 32767;
-      float cscale = MaxRGB / 256.0;
+      float cscale = TileMaxRGB / 256.0;
 
       for (it = this->idata.begin(); it != this->idata.end(); it++) {
         size_t xsize = ((*it).second).size();
@@ -89,7 +89,7 @@ class ImageTile {
           rgb = (uint8_t *) &val;
           //newimg->pixelColor(x, y, Magick::Color(rgb[0] / 255.0 * MaxRGB, rgb[1] / 255.0 * MaxRGB, 0));
           if (greyscale) {
-            int16_t shade = ((val + 32768.0) / 65536.0) * MaxRGB;
+            int16_t shade = ((val + 32768.0) / 65536.0) * TileMaxRGB;
             //int16_t shade = ((val > 0 ? val : 0) / 65535.0) * MaxRGB;
             newimg->pixelColor(x, y, Magick::Color(shade, shade, shade));
           } else {
