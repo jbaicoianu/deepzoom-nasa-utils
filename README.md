@@ -84,9 +84,9 @@ stored in a single 7gb raw file, so processing is pretty straightforward.
 
 
 
-### Node Script
+### DeepZoom Node Port
 
-#### Requirements
+#### Dependencies
 
 ```
 
