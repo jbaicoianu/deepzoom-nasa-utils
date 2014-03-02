@@ -1,46 +1,59 @@
+# DeepZoom Utilities
+
 A collection of tools for turning raw NASA data into DeepZoom tiles.
 
-Table of Contents
---------
+##Table of Contents
+
 * `scripts/`
   * `bluemarble-combine.sh`   - merges 8-panel BMNG tiles into one deepzoom
   * `bluemarble-split.sh `    - splits 8-panel BMNG images into tiles
   * `deepzoom.sh`             - command-line script for generating deepzoom images
   * `deepzoom-lib.sh`         - library of deepzoom-related functions
   * `procspawn-lib.sh`        - utility library for parallelizing shell scripts
+  
 * `src/`
+  * `deep-zoom/`              - node.js port of deepzoom command-line script for generating deepzoom images
   * `tile-dem-srtm/`          - splits raw SRTM/MEGDR elevation data into DEM heightmap image tiles
+	  * `linux/`              - linux source
+	  * `osx/`                - Xcode project for OSX
+
+## Dependencies
 
 
-Datasets
---------
-Earth:
+### ImageMagick
+#### OSX
+```
+sudo port install imagemagick
+```
+  
+##Datasets
+
+###Earth:
  * BMNG
      http://visibleearth.nasa.gov/view.php?id=73570
 
  * CGIAR SRTM digital elevation data v4
      http://srtm.csi.cgiar.org/
 
-Mars:
+###Mars:
  * HiRISE
      http://hirise.lpl.arizona.edu/
 
  * MOLA MEGDR digital elevation data 
      http://pds-geosciences.wustl.edu/missions/mgs/megdr.html
 
-Examples
-========
+##Examples
 
-Simple Deepzoom Image
----------------------
+###Simple Deepzoom Image
+
 For general high-resolution imagery.  Generates all deepzoom levels and the
 matching XML descriptor file automatically.
 
     ./scripts/deepzoom.sh -w [width] -h [height] -s [tilesize] split [imagename]
 
 
-Mars Elevation
---------------
+###Mars Elevation
+
 Mars elevation data is available in the MEGDR dataset, with a resolution of up
 to 128 pixels per degree.  This data is split into 12 files, so extra steps are
 needed to merge the panels together
@@ -54,14 +67,30 @@ needed to merge the panels together
       done
 
 
-Earth Elevation
----------------
+###Earth Elevation
+
 Earth elevation data is available in the CGIAR SRTM v4 dataset.  This data is
 stored in a single 7gb raw file, so processing is pretty straightforward.
+
+```
 
     $ cd $(deepzoom.sh -w 86400 -h 43200 maxlevel)
     $ tile-dem-srtm -f ../srtm_ramp2.world.86400x43200.bin -w 86400 -h 43200 -s 256 -c
     $ cd ..
     $ deepzoom.sh -w 86400 -h 43200 -s 256 combine
+	
+```
 
+
+
+
+### Node Script
+
+#### Requirements
+
+```
+
+npm install mkdirp
+
+```
 
