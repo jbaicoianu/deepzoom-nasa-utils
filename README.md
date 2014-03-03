@@ -117,7 +117,7 @@ In the example below our highest zoom level will be 17 as determined by ceil( lo
 ```
 
 
-#### Requirements
+#### Dependencies
 
 ```
 
