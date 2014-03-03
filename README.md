@@ -5,15 +5,18 @@ A collection of tools for turning raw NASA data into DeepZoom tiles.
 ##Table of Contents
 
 * `scripts/`
-  * `bluemarble-combine.sh`   - merges 8-panel BMNG tiles into one deepzoom
-  * `bluemarble-split.sh `    - splits 8-panel BMNG images into tiles
-  * `deepzoom.sh`             - command-line script for generating deepzoom images
-  * `deepzoom-lib.sh`         - library of deepzoom-related functions
-  * `procspawn-lib.sh`        - utility library for parallelizing shell scripts
+	* `bluemarble-combine.sh`   - merges 8-panel BMNG tiles into one deepzoom
+	* `bluemarble-split.sh `    - splits 8-panel BMNG images into tiles
+	* `deepzoom.sh`             - command-line script for generating deepzoom images
+	* `deepzoom-lib.sh`         - library of deepzoom-related functions
+	* `procspawn-lib.sh`        - utility library for parallelizing shell scripts
   
 * `src/`
-  * `deep-zoom/`              - node.js port of deepzoom command-line script for generating deepzoom images
-  * `tile-dem-srtm/`          - splits raw SRTM/MEGDR elevation data into DEM heightmap image tiles
+	* `deep-zoom/`                - node.js port of deepzoom command-line script for generating deepzoom images
+	  * `deepzoom`              - The command line utility
+	  * `deep-zoom-lib.js`      - Core libraries required for the utility to perform its operations
+	  * `commandline-utils.js`  - Library for creating command line utlities with node.js
+	* `tile-dem-srtm/`          - splits raw SRTM/MEGDR elevation data into DEM heightmap image tiles
 	  * `linux/`              - linux source
 	  * `osx/`                - Xcode project for OSX
 
@@ -85,6 +88,26 @@ stored in a single 7gb raw file, so processing is pretty straightforward.
 
 
 ### Node Script
+
+#### Package Contents
+
+* `src/`
+  * `deep-zoom/`                - node.js port of deepzoom command-line script for generating deepzoom images
+	  * `deepzoom`              - The command line utility
+	  * `deep-zoom-lib.js`      - Core libraries required for the utility to perform its operations
+	  * `commandline-utils.js`  - Library for creating command line utlities with node.js
+
+#### Ussage
+
+The combine command will require your /path/to/base/tiles to contain a numbered directory that represents you highest zoom level.
+In the example below our highest zoom level will be 17 as determined by ceil( log( 86400 ) / log( 2 ) ). For each zoom level (power of 2) approaching zero a new folder will be created numberd with that zoom level into which the composite tiles will be deposited.
+
+```bash
+
+	$ ./deepzoom -command combine -width 86400 -height 43200 -tilesize 256 -filepath /path/to/base/tiles
+
+```
+
 
 #### Requirements
 
