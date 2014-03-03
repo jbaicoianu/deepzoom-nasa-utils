@@ -169,7 +169,7 @@ DeepZoom.prototype = {
 			console.info([
 				
 				"\nLevel ", level,
-				"(", calculatedWidth, "x", calculatedHeight, ")"
+				" - ❪ ", calculatedWidth, "x", calculatedHeight, " ❫"
 				
 			].join(""));
 			
@@ -265,13 +265,13 @@ DeepZoom.prototype = {
 							var progressBarCount = (((++progressCount)/levelTotalCount) * 50);
 							for (var pb = 0; pb < 50; pb += 1) {
 								if (pb < progressBarCount) {
-									percentBar += "\x1b[32;40m▩";
+									percentBar += "\x1b[27;32;42m ";
 								}
 								else {
-									percentBar += "\x1b[37;40m▩";
+									percentBar += "\x1b[7;37;40m ";
 								}
 							}
-							percentBar += "\x1b[30;40m▩\x1b[30;49m  ❪ ";
+							percentBar += "\x1b[30;40m▩\x1b[27;30;49m  ❪ ";
 							percentBar += (Math.floor((progressBarCount * 20))/10) + "% ❫      ";
 							process.stdout.write("\r" + percentBar);
 							
