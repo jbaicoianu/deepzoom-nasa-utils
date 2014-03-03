@@ -26,9 +26,29 @@ DeepZoom.prototype = {
 		}
 		
 		return Math.ceil(
-			Math.log(size) / 0.6931471805599453 /* Log(2) precomputed */
+			Math.log(size) / 0.6931471805599453 /* ln(2) precomputed 64 bit precision */
 		);
 		
+	},
+	
+	scaleRatio: function ( width, height ) {
+		
+		var max = this.maxLevel(width, height);
+		var size;
+		
+		if ( width > height ) {
+			
+			size = width;
+			
+		}
+		else {
+			
+			size = height;
+			
+		}
+		
+
+		return Math.pow(2, max)/size;
 	},
 	
 	split: function ( width, height, tilesize, basename, offsetColumn, offsetRow, format, sourceFile, cachesize ) {
@@ -126,13 +146,13 @@ DeepZoom.prototype = {
 			
 			// console.info(maxLevel);
 		
-		for ( var level = maxLevel, levelLimit = -1; level > levelLimit; level -= 1 ) {
+		for ( var level = maxLevel -1, levelLimit = -1; level > levelLimit; level -= 1 ) {
 
 			previousLevel    = level + 1;
-			scaledWidth      = Math.floor( fullWidth / Math.pow(2, maxLevel - level));
-			scaledHeight     = Math.floor( fullHeight / Math.pow(2, maxLevel - level));
-			calculatedWidth  = Math.floor( scaledWidth / tilesize );
-			calculatedHeight = Math.floor( scaledHeight / tilesize );
+			scaledWidth      = Math.ceil( fullWidth / Math.pow(2, maxLevel - level));
+			scaledHeight     = Math.ceil( fullHeight / Math.pow(2, maxLevel - level));
+			calculatedWidth  = Math.ceil( scaledWidth / tilesize );
+			calculatedHeight = Math.ceil( scaledHeight / tilesize );
 			levelPath		 = [filePath, "/", level].join("");
 			// TODO Make level path if not exist
 			
@@ -140,9 +160,15 @@ DeepZoom.prototype = {
 				this.filesystem.mkdirSync(levelPath);
 			}
 			
+			// Exit the loop if we are out of data to combine.
+			if (calculatedWidth == 1 && calculatedHeight == 1) {
+				level = levelLimit;
+				// continue;
+			}
+			
 			console.info([
 				
-				"Level ", level,
+				"\nLevel ", level,
 				"(", calculatedWidth, "x", calculatedHeight, ")"
 				
 			].join(""));
@@ -155,7 +181,7 @@ DeepZoom.prototype = {
 				
 					var outputFile = [levelPath, "/", col, "_", row, ".", format].join("");
 
-					if ( !this.filesystem.existsSync(outputFile) ) { // TODO check if file path !exists
+					// if ( !this.filesystem.existsSync(outputFile) ) { // TODO check if file path !exists
 						
 						var tilesX            = 0,
 						    tilesY            = 0,
@@ -224,34 +250,46 @@ DeepZoom.prototype = {
 											 	"-tile", [tilesX, "x", tilesY].join(""),
 											 	"-background", "none",
 											 	"-gravity", "NorthWest",
-											 	"-geometry", "50%x50%+0+0"
+											 	"-geometry", tilesize + "x" + tilesize + "+0+0"
 											 ]);
 												
-							if ( tilesX > 0 && tilesY > 0 ) {
+							if ( tilesX > 0 && tilesY > 0 && !this.filesystem.existsSync(outputFile) ) {
+								
 								var command = montageCommand.concat(outputFile).join(" ");
 								this.execSync(command);
-								var percentBar = "[";
-								var progressBarCount = (((++progressCount)/levelTotalCount) * 50);
-								for (var pb = 0; pb < 50; pb += 1) {
-									if (pb < progressBarCount) {
-										percentBar += "▩";
-									}
-									else {
-										percentBar += " ";
-									}
+							}
+							
+							// The code below is just extra to show progress of the work.
+							// It has a performance cost but it's negligible.
+							var percentBar = "\x1b[40m▩";
+							var progressBarCount = (((++progressCount)/levelTotalCount) * 50);
+							for (var pb = 0; pb < 50; pb += 1) {
+								if (pb < progressBarCount) {
+									percentBar += "\x1b[32;40m▩";
 								}
-								percentBar += "] - ";
-								percentBar += (Math.floor((progressBarCount * 200))/100) + "%";
-								process.stdout.write("\r" + percentBar);
+								else {
+									percentBar += "\x1b[37;40m▩";
+								}
+							}
+							percentBar += "\x1b[30;40m▩\x1b[30;49m  ❪ ";
+							percentBar += (Math.floor((progressBarCount * 20))/10) + "% ❫      ";
+							process.stdout.write("\r" + percentBar);
+							
+							if (Math.floor((progressBarCount * 20))/10 == 100) {
+								process.stdout.write("\r" + percentBar.split("\x1b[36;49m").join("\x1b[36;49m").replace("100%", "✔"));								
 							}
 						
-					}
+					// }
 				
 				}
+
 				
 			}
-			
+				console.log("\n")			
 		}
+		process.stdout.write("\r\x1b[30;49m");		
+		console.log("\nFinished.\n\n");
+
 		
 	},
 	
