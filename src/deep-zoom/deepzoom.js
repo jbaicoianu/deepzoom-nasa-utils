@@ -31,15 +31,16 @@ CommandLineUtility.prototype = {
 		
 		for ( var i = 0, len = config.requiredArguments.length; i < len; i += 1 ) {
 		
-			var argument = config.requiredArguments[i];
-		
-			if ( this.userProvidedArguments.indexOf("-" + argument) > -1 ) {
+			var argument = config.requiredArguments[i],
+				argumentIndex = this.userProvidedArguments.indexOf("-" + argument);
+			
+			if ( argumentIndex > -1 ) {
 				
-				var value = this.userProvidedArguments[this.userProvidedArguments.indexOf("-" + argument) + 1];
+				var value = this.userProvidedArguments[argumentIndex + 1];
 				
 				if ( value && value.indexOf("-") == -1 ) {
 					
-					this.requiredArguments[argument] = this.userProvidedArguments[this.userProvidedArguments.indexOf("-" + argument) + 1];					
+					this.requiredArguments[argument] = this.userProvidedArguments[argumentIndex + 1];					
 					
 				}
 				else {
@@ -61,17 +62,16 @@ CommandLineUtility.prototype = {
 	
 		for ( var i = 0, len = config.optionalArguments.length; i < len; i += 1 ) {
 		
-			var argument = config.optionalArguments[i];
+			var argument = config.optionalArguments[i],
+				argumentIndex = this.userProvidedArguments.indexOf("-" + argument);
 		
-			if (this.userProvidedArguments.indexOf("-" + argument) > -1) {
+			if (argumentIndex > -1) {
 				
-
-				
-				var value = this.userProvidedArguments[this.userProvidedArguments.indexOf("-" + argument) + 1];
+				var value = this.userProvidedArguments[argumentIndex + 1];
 				
 				if ( value && value.indexOf("-") == -1 ) {
 					
-					this.optionalArguments[argument] = this.userProvidedArguments[this.userProvidedArguments.indexOf("-" + argument) + 1];					
+					this.optionalArguments[argument] = this.userProvidedArguments[argumentIndex + 1];					
 					
 				}
 				else {
@@ -211,8 +211,83 @@ DeepZoom.prototype = {
 		console.log(arguments);
 	},
 	
-	combine: function ( width, height, tilesize, basename ) {
+	//
+    // Recursively combines tiles from maxlevel to minlevel
+	//
+	combine: function ( fullWidth, fullHeight, tilesize, basename ) {
 		console.log(arguments);
+		
+		var filePath,
+			format,
+			convertCommand    = "convert -bordercolor none -border 1x1 -trim +repage"
+			maxLevel          = this.maxLevel(fullWidth, fullHeight),
+			maxLevelPath      = [filePath, "/", maxLevel].join(""),
+			scaledWidth,
+			scaledHeight,
+			calculatedWidth,
+			calculatedHeight,
+			levelPath,
+			previousLevel;
+		
+		for ( var level = 0, levelLimit = maxLevel; level < levelLimit; level += 1 ) {
+			
+			previousLevel    = level - 1;
+			scaledWidth      = Math.floor( fullWidth / Math.pow(2, maxLevel - level));
+			scaledHeight     = Math.floor( fullHeight / Math.pow(2, maxLevel - level));
+			calculatedWidth  = Math.floor( scaledWidth / tileSize );
+			calculatedHeight = Math.floor( scaledHeight / tileSize );
+			levelPath		 = [filePath, "/", level].join("");
+			// TODO Make level path if not exist
+			
+			console.info([
+				
+				"Level ", level,
+				"(", calculatedWidth, "x", calculatedHeight, ")"
+				
+			].join(""));
+			
+			for ( var row = 0, rowLimit = calculatedHeight; row < rowLimit; row += 1 ) {
+				
+				for ( var col = 0, colLimit = calculatedHeight; col < colLimit; col += 1 ) {
+				
+					var outputFile = [levelPath, "/", col, "_", row, ".", format].join("");
+					
+					if ( true ) { // TODO check if file path !exists
+						
+						var tilesX            = 0,
+						    tilesY            = 0,
+							previousLevelPath = [filePath, "/", previousLevel, "/"],
+							// Figure out which tiles exist, which tells us how to build the montage command
+							tileTopLeft       = previousLevelPath.concat((col * 2), "_", (row * 2), ".", format).join(""),
+							tileTopRight      = previousLevelPath.concat(((col * 2) + 1), "_", (row * 2), ".", format).join(""),
+							tileBottomLeft    = previousLevelPath.concat((col * 2), "_", ((row * 2) + 1), ".", format).join(""),
+							tileBottomRight   = previousLevelPath.concat(((col * 2) + 1), "_", ((row * 2) + 1), ".", format).join(""),
+							// TODO check each tile, count tilesX & tilesY
+							montageCommand	  = [
+													"montage",
+													tileTopLeft,
+													tileTopRight,
+													tileBottomLeft,
+													tileBottomRight,
+													"-tile", [tilesX, "x", tilesY].join(""),
+													"-background", "none",
+													"-gravity", "NorthWest",
+													"-geometry", "50%x50%+0+0"
+												];
+												
+							if ( tilesX > 0 && tilesY > 0 ) {
+								montageComand.concat(outputFile);
+								// Run command
+							}
+						
+					}
+				
+				}
+				
+			}
+			
+		}
+		
 	},
 	
 	descriptor: function ( width, height, tilesize, basename ) {
