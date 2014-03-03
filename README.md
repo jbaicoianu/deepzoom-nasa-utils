@@ -2,7 +2,7 @@
 
 A collection of tools for turning raw NASA data into DeepZoom tiles.
 
-##Table of Contents
+##Package Contents
 
 * `scripts/`
 	* `bluemarble-combine.sh`   - merges 8-panel BMNG tiles into one deepzoom
@@ -19,15 +19,7 @@ A collection of tools for turning raw NASA data into DeepZoom tiles.
 	* `tile-dem-srtm/`          - splits raw SRTM/MEGDR elevation data into DEM heightmap image tiles
 	  * `linux/`              - linux source
 	  * `osx/`                - Xcode project for OSX
-
-## Dependencies
-
-
-### ImageMagick
-#### OSX
-```
-sudo port install imagemagick
-```
+  
   
 ##Datasets
 
@@ -44,6 +36,7 @@ sudo port install imagemagick
 
  * MOLA MEGDR digital elevation data 
      http://pds-geosciences.wustl.edu/missions/mgs/megdr.html
+
 
 ##Examples
 
@@ -85,9 +78,24 @@ stored in a single 7gb raw file, so processing is pretty straightforward.
 ```
 
 
+## Utilities
+
+The project consists of two main utilities for working with datasets. First *deepzoom* is a commandline utility for splitting and combining images into deepzoom tiles. Second is *tile-dem-srtm* for working with the *CGIAR SRTM v4* dataset.
+
+##### Dependencies
+
+The utlilities for working working with deepzoom tiles requires the use of ImageMagick to perform its operations.
+
+###### OSX
+
+```
+
+sudo port install imagemagick
+
+```
 
 
-### Node Script
+### DeepZoom
 
 #### Package Contents
 
@@ -114,6 +122,17 @@ In the example below our highest zoom level will be 17 as determined by ceil( lo
 ```
 
 npm install mkdirp
+
+```
+
+
+### SRTM to DEM Tiles
+
+#### Compiling tile-dem-srtm
+
+```bash
+
+g++ -Wall -pedantic -I/usr/include/ImageMagick/ -lMagick++ tile-dem-srtm.cpp -o tile-dem-srtm 
 
 ```
 
