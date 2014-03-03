@@ -4,13 +4,14 @@ var DeepZoom = function () {
 	this.filesystem = require('fs');
 	this.mkdirp = require('mkdirp');
 	this.imagemagick = require("imagemagick");
+	this.execSync = require("exec-sync");
 };
 
 DeepZoom.prototype = {
 	
 	// returns the maximum zoom level given an image's width and height
 	maxLevel: function ( width, height ) {
-		console.log("maxlevel", width, height)
+		// console.log("maxlevel", width, height)
 		var size;
 		
 		if ( width > height ) {
@@ -112,7 +113,6 @@ DeepZoom.prototype = {
     // Recursively combines tiles from maxlevel to minlevel
 	//
 	combine: function ( fullWidth, fullHeight, tilesize, filePath, format ) {
-		console.log(arguments);
 		
 		var convertCommand    = "convert -bordercolor none -border 1x1 -trim +repage",
 			maxLevel          = this.maxLevel(fullWidth, fullHeight),
@@ -124,10 +124,10 @@ DeepZoom.prototype = {
 			levelPath         = '',
 			previousLevel     = 0;
 			
-			console.info(maxLevel);
+			// console.info(maxLevel);
 		
 		for ( var level = maxLevel, levelLimit = -1; level > levelLimit; level -= 1 ) {
-			console.log(level, maxLevel);
+
 			previousLevel    = level + 1;
 			scaledWidth      = Math.floor( fullWidth / Math.pow(2, maxLevel - level));
 			scaledHeight     = Math.floor( fullHeight / Math.pow(2, maxLevel - level));
@@ -147,9 +147,11 @@ DeepZoom.prototype = {
 				
 			].join(""));
 			
+			var levelTotalCount = calculatedHeight * calculatedWidth;
+			var progressCount = 0;
 			for ( var row = 0, rowLimit = calculatedHeight; row < rowLimit; row += 1 ) {
 				
-				for ( var col = 0, colLimit = calculatedHeight; col < colLimit; col += 1 ) {
+				for ( var col = 0, colLimit = calculatedWidth; col < colLimit; col += 1 ) {
 				
 					var outputFile = [levelPath, "/", col, "_", row, ".", format].join("");
 
@@ -227,9 +229,20 @@ DeepZoom.prototype = {
 												
 							if ( tilesX > 0 && tilesY > 0 ) {
 								var command = montageCommand.concat(outputFile).join(" ");
-								// exec(command, function () {
-								// 	console.log(arguments);
-								// });
+								this.execSync(command);
+								var percentBar = "[";
+								var progressBarCount = (((++progressCount)/levelTotalCount) * 50);
+								for (var pb = 0; pb < 50; pb += 1) {
+									if (pb < progressBarCount) {
+										percentBar += "▩";
+									}
+									else {
+										percentBar += " ";
+									}
+								}
+								percentBar += "] - ";
+								percentBar += (Math.floor((progressBarCount * 200))/100) + "%";
+								process.stdout.write("\r" + percentBar);
 							}
 						
 					}
