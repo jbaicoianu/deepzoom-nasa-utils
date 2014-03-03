@@ -105,6 +105,23 @@ sudo port install imagemagick
 	  * `deep-zoom-lib.js`      - Core libraries required for the utility to perform its operations
 	  * `commandline-utils.js`  - Library for creating command line utlities with node.js
 
+
+
+#### Dependencies
+
+DeepZoom is built ontop of node.js and will require node.js to be installed to run.
+
+* http://nodejs.org/
+
+######Node.js Libraries
+
+```
+
+npm install mkdirp
+
+```
+
+
 #### Ussage
 
 The combine command will require your /path/to/base/tiles to contain a numbered directory that represents you highest zoom level.
@@ -113,15 +130,6 @@ In the example below our highest zoom level will be 17 as determined by ceil( lo
 ```bash
 
 	$ ./deepzoom -command combine -width 86400 -height 43200 -tilesize 256 -filepath /path/to/base/tiles
-
-```
-
-
-#### Dependencies
-
-```
-
-npm install mkdirp
 
 ```
 
